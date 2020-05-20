@@ -3,17 +3,19 @@ import { StyleSheet, Button, View, SafeAreaView, Text, Alert, TextInput, Touchab
 import TcpSocket from 'react-native-tcp-socket';
 
 let client = '';
-let datalar = []
+
 
 
 
 export default class Connection extends Component {
 
-    /*static navigationOptions = ({ navigation }) => {
+    static navigationOptions = ({ navigation }) => {
         return {
-            title: navigation.getParam('name')
+            //title: navigation.getParam('name')
+            headerShown: false
         }
-    }*/
+    }
+
 
     constructor(props) {
         super(props);
@@ -21,32 +23,35 @@ export default class Connection extends Component {
             data1: [],
             server: [],
             value: '',
-            ip: '',
-            port: '',
+            ip: '192.168.1.7',
+            port: '3000',
             status: false
         };
     }
 
 
     render() {
-        const { navigate, state1 } = this.props.navigation;
-
+        let datalar = []
+        let _this = this
+        const { navigate, state } = this.props.navigation;
+        const { ip, port, value } = this.state;
         function connect() {
-            client = TcpSocket.createConnection({ port: this.state.port, host: this.state.ip })
+
+            client = TcpSocket.createConnection({ port: port, host: ip })
 
             client.on('connect', function (id) {
-                this.state.status = true
+                _this.setState({ status: true });
             })
 
             client.on('data', function (data) {
                 //setserver([])
                 datalar.push('Server: ' + String.fromCharCode.apply(null, data))
                 //setserver(datalar)
-                this.state.server = datalar
+                _this.setState({ server: datalar });
             });
 
             client.on('error', function (error) {
-                this.state.status = false
+                _this.setState({ status: false });
                 //setstatus(false)
                 console.log(error);
             });
@@ -55,10 +60,10 @@ export default class Connection extends Component {
                 //setstatus(false)
                 datalar = []
                 // setserver([]);
-                setdata([])
-                this.state.status = false
-                this.state.server = []
-                this.state.data1 = []
+                // setdata([])
+                _this.setState({ status: false });
+                _this.setState({ server: [] });
+                _this.setState({ data1: [] });
                 console.log('Connection closed!');
             });
 
@@ -66,7 +71,7 @@ export default class Connection extends Component {
 
         function send() {
             client.write(value);
-            this.state.data1.push('Client: ' + value)
+            _this.state.data1.push('Client: ' + value)
             //setdata(['Client: ' + value, ...data1])
         }
         function stop() {
@@ -121,7 +126,7 @@ export default class Connection extends Component {
                             "borderColor": "rgba(112, 112, 112, 255)",
                             "backgroundColor": "rgba(255, 255, 255, 255)"
                         }}
-                        onChangeText={text => this.state.ip = text}
+                        onChangeText={text => this.setState({ ip: text })}
                         value={this.state.ip}
                     />
 
@@ -142,7 +147,7 @@ export default class Connection extends Component {
                             "borderColor": "rgba(112, 112, 112, 255)",
                             "backgroundColor": "rgba(255, 255, 255, 255)"
                         }}
-                        onChangeText={text => this.state.port = text}
+                        onChangeText={text => this.setState({ port: text })}// this.setState({ port: text })}
                         value={this.state.port}
                     />
 
@@ -222,7 +227,7 @@ export default class Connection extends Component {
                     }>
                     <ScrollView style={{ "width": 281 }}>
                         {
-                            this.state.server.map(function (e1e) {
+                            _this.state.server.map(function (e1e) {
                                 return <Text style={{ "color": "white" }}>{e1e}</Text>
                             })
                         }
@@ -246,7 +251,7 @@ export default class Connection extends Component {
                         "backgroundColor": "rgba(255, 255, 255, 255)"
 
                     }}
-                    onChangeText={text => this.state.value = text}
+                    onChangeText={text => this.setState({ value: text })}
                     value={this.state.value}
                 />
 
